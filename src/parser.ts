@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { ConfigValidator } from './configValidator';
 
 interface Config {
     [key: string]: string | number | boolean;
@@ -14,17 +15,26 @@ export class ConfigError extends Error {
 export class ConfigParser {
     private lines: string[];
     private static MAX_LINE_LENGTH = 4096;
+    private validator: ConfigValidator;
 
-    constructor(filePath: string) {
+    constructor(filePath: string, validator: ConfigValidator) {
         const content = fs.readFileSync(filePath, 'utf-8');
         this.lines = content.split('\n');
+        this.validator = validator;
     }
 
-    parse(): Config {
-        return this.lines
+    parse(): Config | null {
+        const config = this.lines
             .map(this.trimLine)
             .filter(line => !this.shouldSkipLine(line))
             .reduce(this.processLine, {} as Config);
+
+        if (this.validator.validate(config)) {
+            return config;
+        } else {
+            console.error('Configuration does not meet the schema requirements');
+            return null;
+        }
     }
 
     private processLine = (config: Config, line: string): Config => {
@@ -76,7 +86,6 @@ export class ConfigParser {
             } else {
                 console.warn(`Unexpected warning in optional setting: ${error}`);
             }
-            // Don't re-throw the error for optional settings
         }
         return config;
     }
@@ -101,38 +110,24 @@ export class ConfigParser {
     }
 
     private extractKeyValue(line: string): [string | null, string | null] {
-      const separatorIndex = line.indexOf('=');
-      if (separatorIndex === -1) {
-          return [null, null];
-      }
+        const separatorIndex = line.indexOf('=');
+        if (separatorIndex === -1) {
+            return [null, null];
+        }
 
-      const key = line.slice(0, separatorIndex).trim();
-      const value = line.slice(separatorIndex + 1);  // トリミングしない
+        const key = line.slice(0, separatorIndex).trim();
+        const value = line.slice(separatorIndex + 1);  // トリミングしない
 
-      return [key || null, value];
-  }
+        return [key || null, value];
+    }
 
-  private parseValue(value: string): string | number | boolean {
-      const trimmedValue = value.trim();
-      if (trimmedValue === '') return '';  // 空文字列や空白のみの場合
-      if (trimmedValue.toLowerCase() === 'true') return true;
-      if (trimmedValue.toLowerCase() === 'false') return false;
-      const num = Number(trimmedValue);
-      if (!isNaN(num)) return num;
-      return trimmedValue;
-  }
+    private parseValue(value: string): string | number | boolean {
+        const trimmedValue = value.trim();
+        if (trimmedValue === '') return '';  // 空文字列や空白のみの場合
+        if (trimmedValue.toLowerCase() === 'true') return true;
+        if (trimmedValue.toLowerCase() === 'false') return false;
+        const num = Number(trimmedValue);
+        if (!isNaN(num)) return num;
+        return trimmedValue;
+    }
 }
-
-// サンプルファイルの読み込み
-// const configPath = './config.conf';
-// try {
-//     const parser = new ConfigParser(configPath);
-//     const parsedConfig = parser.parse();
-//     console.log(JSON.stringify(parsedConfig, null, 2));
-// } catch (error) {
-//     if (error instanceof ConfigError) {
-//         console.error('Error parsing config file:', error.message);
-//     } else {
-//         console.error('Unexpected error:', error);
-//     }
-// }
