@@ -1,4 +1,4 @@
-import { ConfigParser, ConfigError } from './parser';
+import { ConfigParser, ConfigError } from './configParser';
 import { ConfigValidator } from './configValidator';
 import * as fs from 'fs';
 
