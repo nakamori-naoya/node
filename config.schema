@@ -1,0 +1,29 @@
+# Configuration Schema
+
+# Server settings
+endpoint -> string
+port -> number
+
+# Debug settings
+debug -> boolean
+
+# Logging settings
+log.file -> string
+log.level -> string
+
+# Database settings
+db.host -> string
+db.port -> number
+db.username -> string
+db.password -> string
+
+# Feature flags
+feature.new_ui -> boolean
+feature.analytics -> boolean
+
+# Performance settings
+max_connections -> number
+timeout -> number
+
+# Misc
+app_version -> string

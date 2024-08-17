@@ -12,5 +12,3 @@ RUN npm install typescript jest ts-jest @types/jest ts-node
 COPY . .
 
 RUN npm run build
-
-CMD ["npm", "test"]
