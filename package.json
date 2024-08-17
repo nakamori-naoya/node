@@ -1,0 +1,16 @@
+{
+  "name": "config-parser",
+  "version": "1.0.0",
+  "description": "Parse configuration files with sysctl.conf-like syntax",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/parser.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^14.14.31",
+    "typescript": "^4.2.3"
+  }
+}
